@@ -4497,7 +4497,7 @@ COPY public.ab_role (id, name) FROM stdin;
 --
 
 COPY public.ab_user (id, first_name, last_name, username, password, active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk, changed_by_fk) FROM stdin;
-2	admin	admin	admin	pbkdf2:sha256:260000$pjqaxHs4TrW8pt21$cfb72cd557a69b106dbe71f6bd890b566b5c8dd59ba1ac86a3b1cc4a59aaa7a8	t	admin@hellodata.ch	\N	\N	\N	2023-12-20 15:07:17.345805	2023-12-20 15:07:17.345813	1	1
+2	admin	admin	admin	pbkdf2:sha256:260000$pjqaxHs4TrW8pt21$cfb72cd557a69b106dbe71f6bd890b566b5c8dd59ba1ac86a3b1cc4a59aaa7a8	t	admin@hellodatabedag.ch	\N	\N	\N	2023-12-20 15:07:17.345805	2023-12-20 15:07:17.345813	1	1
 1	Superset	Admin	local-admin	pbkdf2:sha256:260000$RbhgQYU5jhwwXK5b$43d8f4375c3d06bd87b2b6ccf4bce5923eab06a2676e941ba84edba6d275d1ed	t	admin@superset.com	2023-12-20 15:12:09.876985	42	0	2023-12-20 15:06:29.03476	2023-12-20 15:06:29.034768	\N	\N
 \.
 

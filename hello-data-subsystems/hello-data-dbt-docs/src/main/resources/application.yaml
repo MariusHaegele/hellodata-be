@@ -37,7 +37,7 @@ hello-data:
     realm: hellodata
     client-id: frontend-client
   default-admin:
-    email: admin@hellodata.ch
+    email: admin@hellodatabedag.ch
     username: admin
     password: admin
     first-name: HelloDATA

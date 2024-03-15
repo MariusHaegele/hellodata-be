@@ -69,7 +69,7 @@ public class CbUserContextRoleConsumerTest {
 
     public static UserContextRoleUpdate createSampleUserContextRoleUpdate() {
         UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
-        userContextRoleUpdate.setEmail("hello@hellodata.ch");
+        userContextRoleUpdate.setEmail("hello@hellodatabedag.ch");
 
         List<ContextRole> contextRoles = new ArrayList<>();
 

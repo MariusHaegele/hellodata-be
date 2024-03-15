@@ -1579,7 +1579,7 @@
     "auth": "",
     "port": "25025",
     "host": "192.168.0.108",
-    "from": "no_reply@hellodata.ch",
+    "from": "no_reply@hellodatabedag.ch",
     "ssl": ""
   },
   "eventsEnabled": false,

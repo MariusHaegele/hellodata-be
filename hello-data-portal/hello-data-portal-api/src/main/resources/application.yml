@@ -39,7 +39,7 @@ hello-data:
     admin-client-secret: LiLlI86eFxXNWXUWqov4eyG1ocgWwPEq
     sync-users-schedule-seconds: 30
   default-admin:
-    email: admin@hellodata.ch
+    email: admin@hellodatabedag.ch
     username: admin
     password: admin
     first-name: HelloDATA
@@ -49,10 +49,10 @@ hello-data:
     data-domain-admin-password: admin
     data-domain-editor-password: editor
     data-domain-viewer-password: viewer
-    email-postfix: hellodata.ch
+    email-postfix: hellodatabedag.ch
   check-user-context-roles-in-minutes: 3
   system-properties:
-    no-reply-email: "no-reply@hellodata.ch"
+    no-reply-email: "no-reply@hellodatabedag.ch"
     default-locale: "de_CH"
     disable-logout: false # to disable logout button on frontend (for AD logged-in users)
   ldap:

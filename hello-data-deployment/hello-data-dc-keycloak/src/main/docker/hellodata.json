@@ -470,7 +470,7 @@
         "emailVerified": true,
         "firstName": "admin",
         "lastName": "admin",
-        "email": "admin@hellodata.ch",
+        "email": "admin@hellodatabedag.ch",
         "credentials": [
           {
             "id": "a16a7e9b-368f-4aa7-a60e-26f473700d30",
@@ -499,7 +499,7 @@
         "emailVerified": true,
         "firstName": "hellodata",
         "lastName": "hellodata",
-        "email": "hellodata@hellodata.ch",
+        "email": "hellodata@hellodatabedag.ch",
         "credentials": [
           {
             "id": "53ffcd14-c7e5-4df6-9c9e-0ba92ec3a93b",

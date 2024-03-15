@@ -279,7 +279,7 @@ AUTH_ROLE_PUBLIC = 'Public'
 # Will allow user self registration, allowing to create Flask users from Authorized User
 AUTH_USER_REGISTRATION = True
 # The default user self registration role
-AUTH_USER_REGISTRATION_ROLE_JMESPATH = "contains(['admin@hellodata.ch'], email) && 'Admin' || 'BI_VIEWER'"
+AUTH_USER_REGISTRATION_ROLE_JMESPATH = "contains(['admin@hellodatabedag.ch'], email) && 'Admin' || 'BI_VIEWER'"
 FAB_ADD_SECURITY_API = True
 SECURITY_MANAGER_CLASS = HdSecurityManager
 CUSTOM_SECURITY_MANAGER = HdSecurityManager

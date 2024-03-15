@@ -28,10 +28,10 @@
 INSERT INTO superset.ab_user
 (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk, changed_by_fk)
 VALUES (1, 'HelloDATA', 'TechAdmin', 'techadmin', 'pbkdf2:sha256:260000$CFm4xtufJg2tMyd3$94f01035576749747fa591a326e762c40fff73738c1cd80df0026beaf1305913', true,
-        'techadmin@hellodata.ch', '2023-11-13 13:11:13.338', 6893, 0, '2023-11-08 11:15:05.828', '2023-11-08 11:15:05.828', NULL, NULL);
+        'techadmin@hellodatabedag.ch', '2023-11-13 13:11:13.338', 6893, 0, '2023-11-08 11:15:05.828', '2023-11-08 11:15:05.828', NULL, NULL);
 INSERT INTO superset.ab_user
 (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk, changed_by_fk)
-VALUES (2, 'HelloDATA', 'Admin', 'admin', 'pbkdf2:sha256:260000$vgh8C2p2EksQKaXa$3c1957154c26896337c1c55ba9df7eee7bbb91138ac1b17e467300d6ab7ee9c6', true, 'admin@hellodata.ch',
+VALUES (2, 'HelloDATA', 'Admin', 'admin', 'pbkdf2:sha256:260000$vgh8C2p2EksQKaXa$3c1957154c26896337c1c55ba9df7eee7bbb91138ac1b17e467300d6ab7ee9c6', true, 'admin@hellodatabedag.ch',
         '2023-11-08 12:31:18.948', 5, 0, '2023-11-08 11:34:24.064', '2023-11-08 11:34:24.064', NULL, NULL);
 
 INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
