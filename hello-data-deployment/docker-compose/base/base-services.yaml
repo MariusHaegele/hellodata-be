@@ -288,14 +288,6 @@ services:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
 
-  filebrowser:
-    image: filebrowser/filebrowser
-    restart: always
-    ports:
-      - 8090:80
-    volumes:
-      - shared-data:/srv
-
   sftpgo:
     image: drakkan/sftpgo
     container_name: sftpgo
