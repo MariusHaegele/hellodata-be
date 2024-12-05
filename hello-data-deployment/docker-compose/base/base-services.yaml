@@ -303,6 +303,13 @@ services:
       SFTPGO_DATA_PROVIDER__PORT: 5432
       SFTPGO_DATA_PROVIDER__USERNAME: postgres
       SFTPGO_DATA_PROVIDER__PASSWORD: postgres
+
+      #keycloak
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__CLIENT_ID: "frontend-client"
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__CLIENT_SECRET: "not needed"
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__CONFIG_URL: "http://keycloak.localhost:38080/realms/hellodata"
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__REDIRECT_BASE_URL: "http://localhost:38079"
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__USERNAME_FIELD: "preferred_username"
     depends_on:
       - postgres
     ports:
@@ -312,6 +319,8 @@ services:
       - shared-data:/storage
       - ./base/sftpgo/initial-data.json:/tmp/initial-data.json:ro
     command: sftpgo serve --loaddata-from /tmp/initial-data.json --loaddata-mode 0
+    extra_hosts:
+      - "keycloak.localhost:host-gateway"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8090/api/v1/ping" ]
       interval: 30s
