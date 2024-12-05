@@ -311,6 +311,8 @@ services:
       SFTPGO_DATA_PROVIDER__PORT: 5432
       SFTPGO_DATA_PROVIDER__USERNAME: postgres
       SFTPGO_DATA_PROVIDER__PASSWORD: postgres
+    depends_on:
+      - postgres
     ports:
       - "2022:2022"
       - "8090:8080"
