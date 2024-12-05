@@ -304,7 +304,7 @@ services:
       SFTPGO_HTTPD__BINDINGS__0__OIDC__CLIENT_ID: "frontend-client"
       SFTPGO_HTTPD__BINDINGS__0__OIDC__CLIENT_SECRET: "not needed"
       SFTPGO_HTTPD__BINDINGS__0__OIDC__CONFIG_URL: "http://keycloak.localhost:38080/realms/hellodata"
-      SFTPGO_HTTPD__BINDINGS__0__OIDC__REDIRECT_BASE_URL: "http://localhost:38079"
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__REDIRECT_BASE_URL: "http://localhost:8090"
       SFTPGO_HTTPD__BINDINGS__0__OIDC__USERNAME_FIELD: "preferred_username"
     depends_on:
       - postgres
