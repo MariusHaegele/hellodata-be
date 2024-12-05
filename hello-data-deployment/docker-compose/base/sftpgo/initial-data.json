@@ -1,0 +1,18 @@
+{
+  "admins": [
+    {
+      "email": "admin@hellodata.ch",
+      "filters": {},
+      "id": 1,
+      "password": "admin",
+      "permissions": [
+        "*"
+      ],
+      "status": 1,
+      "username": "admin"
+    }
+  ],
+  "folders": [],
+  "users": [],
+  "version": 7
+}
