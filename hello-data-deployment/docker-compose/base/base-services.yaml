@@ -79,6 +79,43 @@ version: "3.7"
 
 services:
 
+  minio:
+    image: minio/minio
+    container_name: minio
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  createbuckets:
+    image: minio/mc
+    restart: on-failure
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/bash -c "
+      set -e;
+      echo 'Wait until MinIO is ready';
+      for i in {1..30}; do
+        mc alias set myminio http://minio:9000 minioadmin minioadmin && break || sleep 1;
+      done;
+      mc mb myminio/default-data-domain || true;
+      mc anonymous set public myminio/default-data-domain || true;
+      mc mb myminio/extra-data-domain || true;
+      mc anonymous set public myminio/extra-data-domain || true;
+      exit 0;
+      "
+
   showcase-files-default-data-domain:
     platform: ${HD_PLATFORM}
     image: bedag/hello-data-showcase
@@ -307,7 +344,10 @@ services:
       SFTPGO_HTTPD__BINDINGS__0__OIDC__REDIRECT_BASE_URL: "http://localhost:8090"
       SFTPGO_HTTPD__BINDINGS__0__OIDC__USERNAME_FIELD: "preferred_username"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
     ports:
       - "2022:2022"
       - "8090:8080"
