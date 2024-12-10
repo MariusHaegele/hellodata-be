@@ -33,10 +33,9 @@ hello-data:
     name: "SFTPGo filebrowser"
     url: filebrowser.local
   sftpgo:
-    host: localhost
-    port: 8088
-    admin-username: local-admin
-    admin-password: local-admin
+    base-url: http://localhost:8090
+    admin-username: admin
+    admin-password: admin
   sidecar:
     pubish-interval-minutes: 10
 

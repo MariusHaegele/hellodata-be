@@ -1,6 +1,5 @@
 package ch.bedag.dap.hellodata.sidecars.sftpgo;
 
-import ch.bedag.dap.hellodata.commons.nats.annotation.EnableJetStream;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@EnableJetStream
 @EnableScheduling
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -37,4 +35,6 @@ public class HDSidecarSftpgo {
             }
         };
     }
+
+
 }
