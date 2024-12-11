@@ -3,9 +3,9 @@ package ch.bedag.dap.hellodata.sidecars.sftpgo.service.resource;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemGetAllUsers;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.User;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService;
@@ -30,7 +30,7 @@ import static ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.User.StatusEnu
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class SftpGoResourceProviderService {
+public class SftpGoUserResourceProviderService {
     private final NatsSenderService natsSenderService;
     private final SftpGoService sftpGoService;
     private final PodUtilsProvider podUtilsProvider;
@@ -72,7 +72,7 @@ public class SftpGoResourceProviderService {
         subsystemUser.setId(user.getId());
         subsystemUser.setUsername(user.getUsername());
         subsystemUser.setRoles(user.getGroups().stream().map(groupMapping -> {
-            SupersetRole role = new SupersetRole();
+            SubsystemRole role = new SubsystemRole();
             role.setName(groupMapping.getName());
             return role;
         }).toList());

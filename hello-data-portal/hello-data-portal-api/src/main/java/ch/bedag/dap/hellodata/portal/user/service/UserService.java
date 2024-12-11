@@ -40,7 +40,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
@@ -623,10 +622,10 @@ public class UserService {
 
     private DashboardForUserDto createDashboardDto(DashboardResource dashboardResource, SubsystemUser subsystemUser, SupersetDashboard supersetDashboard, String contextKey) {
         String dashboardTitle = supersetDashboard.getDashboardTitle();
-        SupersetRole supersetRole = supersetDashboard.getRoles().stream().filter(role -> role.getName().startsWith(DASHBOARD_ROLE_PREFIX)).findFirst().orElse(null);
+        SubsystemRole SubsystemRole = supersetDashboard.getRoles().stream().filter(role -> role.getName().startsWith(DASHBOARD_ROLE_PREFIX)).findFirst().orElse(null);
         boolean userHasSlugifyDashboardRole = false;
-        if (supersetRole != null && subsystemUser != null) {
-            userHasSlugifyDashboardRole = subsystemUser.getRoles().contains(supersetRole);
+        if (SubsystemRole != null && subsystemUser != null) {
+            userHasSlugifyDashboardRole = subsystemUser.getRoles().contains(SubsystemRole);
         }
         DashboardForUserDto dashboardForUserDto = new DashboardForUserDto();
         dashboardForUserDto.setId(supersetDashboard.getId());
