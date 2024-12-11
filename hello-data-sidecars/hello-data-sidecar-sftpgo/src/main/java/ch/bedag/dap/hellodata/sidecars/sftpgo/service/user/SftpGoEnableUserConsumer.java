@@ -20,7 +20,7 @@ public class SftpGoEnableUserConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = ENABLE_USER, asyncRun = false)
-    public void disableUser(SubsystemUserUpdate subsystemUserUpdate) {
+    public void enableUser(SubsystemUserUpdate subsystemUserUpdate) {
         try {
             log.info("------- Received SFTPGo user enable request {}", subsystemUserUpdate);
             sftpgoService.enableUser(subsystemUserUpdate.getUsername());
