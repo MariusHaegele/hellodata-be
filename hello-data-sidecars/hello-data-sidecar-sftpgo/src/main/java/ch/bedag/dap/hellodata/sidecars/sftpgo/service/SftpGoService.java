@@ -29,6 +29,38 @@ public class SftpGoService {
         return usersApi.getUsers(0, Integer.MAX_VALUE, "ASC").collectList().block();
     }
 
+    public User getUser(String username) {
+        refreshToken();
+        UsersApi usersApi = new UsersApi(apiClient);
+        return usersApi.getUserByUsername(username, 0).block();
+    }
+
+    public void disableUser(String username) {
+        User user = getUser(username);
+        user.setStatus(User.StatusEnum.NUMBER_0);
+        UsersApi usersApi = new UsersApi(apiClient);
+        usersApi.updateUser(username, user, 1).block();
+    }
+
+    public void enableUser(String username) {
+        User user = getUser(username);
+        user.setStatus(User.StatusEnum.NUMBER_1);
+        UsersApi usersApi = new UsersApi(apiClient);
+        usersApi.updateUser(username, user, 1).block();
+    }
+
+    public void createUser(String email, String username, String password) {
+        refreshToken();
+        UsersApi usersApi = new UsersApi(apiClient);
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setEmail(email);
+        user.setStatus(User.StatusEnum.NUMBER_1);
+        usersApi.addUser(user, 0).block();
+        usersApi.disableUser2fa(username).block();
+    }
+
     private void refreshToken() {
         HttpBasicAuth basicAuth = (HttpBasicAuth) apiClient.getAuthentication("BasicAuth");
         basicAuth.setUsername(sftpgoAdminUsername);

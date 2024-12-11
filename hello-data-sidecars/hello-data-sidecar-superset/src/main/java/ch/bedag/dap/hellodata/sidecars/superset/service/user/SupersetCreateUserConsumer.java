@@ -71,7 +71,7 @@ public class SupersetCreateUserConsumer {
                     .map(SubsystemRole::getId)
                     .findFirst();
             SupersetUsersResponse response = supersetClient.getUser(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
-            if (response != null && response.getResult().size() > 0) {
+            if (response != null && !response.getResult().isEmpty()) {
                 SubsystemUser user = response.getResult().get(0);
                 log.debug("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
                 enableUser(supersetUserCreate, user, supersetClient, aPublicRoleId);
