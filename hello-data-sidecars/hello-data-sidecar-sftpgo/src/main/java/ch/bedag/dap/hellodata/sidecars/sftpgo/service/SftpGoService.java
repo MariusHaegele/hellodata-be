@@ -16,6 +16,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import static org.springframework.web.reactive.function.client.WebClientResponseException.Conflict;
@@ -25,7 +27,7 @@ import static org.springframework.web.reactive.function.client.WebClientResponse
 @Service
 @RequiredArgsConstructor
 public class SftpGoService {
-    private static final String ADMIN_GROUP_NAME = "Admin";
+    public static final String ADMIN_GROUP_NAME = "Admin";
     private final ApiClient apiClient;
     private final S3ConnectionsConfig s3ConnectionsConfig;
 
@@ -35,6 +37,8 @@ public class SftpGoService {
     private String sftpGoAdminPassword;
     @Value("${hello-data.admin-virtual-folder}")
     private String adminVirtualFolder;
+
+    private OffsetDateTime lastRefreshTime;
 
     @PostConstruct
     public void initAdminGroup() {
@@ -63,6 +67,7 @@ public class SftpGoService {
     }
 
     public void disableUser(String username) {
+        refreshToken();
         User user = getUser(username);
         user.setStatus(User.StatusEnum.NUMBER_0);
         UsersApi usersApi = new UsersApi(apiClient);
@@ -70,7 +75,15 @@ public class SftpGoService {
         log.info("User {} disabled", username);
     }
 
+    public void updateUser(User user) {
+        refreshToken();
+        UsersApi usersApi = new UsersApi(apiClient);
+        usersApi.updateUser(user.getUsername(), user, 1).block();
+        log.info("User {} updated", user.getUsername());
+    }
+
     public void enableUser(String username) {
+        refreshToken();
         User user = getUser(username);
         user.setStatus(User.StatusEnum.NUMBER_1);
         UsersApi usersApi = new UsersApi(apiClient);
@@ -113,6 +126,7 @@ public class SftpGoService {
     }
 
     private void createAdminGroup(GroupsApi groupsApi) {
+        refreshToken();
         BaseVirtualFolder baseVirtualFolder = new BaseVirtualFolder();
         baseVirtualFolder.setName(ADMIN_GROUP_NAME);
         baseVirtualFolder.setMappedPath(adminVirtualFolder);
@@ -133,6 +147,7 @@ public class SftpGoService {
     }
 
     private VirtualFolder createVirtualFolder(String dataDomainKey, String dataDomainName, String groupName) {
+        refreshToken();
         S3ConnectionsConfig.S3Connection s3Connection = s3ConnectionsConfig.getS3Connection(dataDomainKey);
         S3Config s3Config = new S3Config();
         s3Config.setAccessKey(s3Connection.getAccessKey());
@@ -173,14 +188,30 @@ public class SftpGoService {
         return vf;
     }
 
+    /**
+     * If the lastRefreshTime is set, check if 20 minutes have passed
+     */
     private void refreshToken() {
+        if (lastRefreshTime != null) {
+            Duration timeSinceLastRefresh = Duration.between(lastRefreshTime, OffsetDateTime.now());
+            if (timeSinceLastRefresh.toMinutes() < 25) {
+                log.info("Token refresh skipped. Last refresh was {} minutes ago.", timeSinceLastRefresh.toMinutes());
+                return;
+            }
+        }
+
         HttpBasicAuth basicAuth = (HttpBasicAuth) apiClient.getAuthentication("BasicAuth");
         basicAuth.setUsername(sftpGoAdminUsername);
         basicAuth.setPassword(sftpGoAdminPassword);
 
         TokenApi tokenApi = new TokenApi(apiClient);
         Token token = tokenApi.getToken(null).block();
+
         HttpBearerAuth BearerAuth = (HttpBearerAuth) apiClient.getAuthentication("BearerAuth");
         BearerAuth.setBearerToken(token.getAccessToken());
+
+        lastRefreshTime = OffsetDateTime.now();
+        log.info("Token refreshed successfully. Next refresh allowed after 20 minutes.");
     }
+
 }
