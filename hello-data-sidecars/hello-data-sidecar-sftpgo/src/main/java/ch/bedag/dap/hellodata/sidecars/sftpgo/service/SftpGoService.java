@@ -78,7 +78,7 @@ public class SftpGoService {
         log.info("User {} enabled", username);
     }
 
-    public void createUser(String email, String username, String password) {
+    public User createUser(String email, String username, String password) {
         refreshToken();
         UsersApi usersApi = new UsersApi(apiClient);
         User user = new User();
@@ -86,9 +86,10 @@ public class SftpGoService {
         user.setPassword(password);
         user.setEmail(email);
         user.setStatus(User.StatusEnum.NUMBER_1);
-        usersApi.addUser(user, 0).block();
+        User createdUser = usersApi.addUser(user, 0).block();
         usersApi.disableUser2fa(username).block();
         log.info("User {} created", username);
+        return createdUser;
     }
 
     public void createGroup(String dataDomainKey, String dataDomainName) {
