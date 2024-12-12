@@ -1,4 +1,4 @@
-package ch.bedag.dap.hellodata.sidecars.sftpgo.service.user;
+package ch.bedag.dap.hellodata.sidecars.sftpgo.listener;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;

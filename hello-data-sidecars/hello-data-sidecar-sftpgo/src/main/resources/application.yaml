@@ -30,12 +30,26 @@ hello-data:
   #    code: 'type | key | name'
   business-context: 'Business Domain | HelloDATA_Product_Development | HelloDATA Product Development'
   instance:
-    name: "SFTPGo filebrowser"
+    name: "SFTPGo File Browser"
     url: filebrowser.local
   sftpgo:
     base-url: http://localhost:8090
     admin-username: admin
     admin-password: admin
+  s3-connections:
+    - context-key: Default_Data_Domain
+      endpoint: http://minio:9000
+      bucket: default-data-domain #lower case context key, dashes only
+      access-key: minioadmin
+      access-secret: minioadmin
+      force-path-style: true
+    - context-key: Extra_Data_Domain
+      endpoint: http://minio:9000
+      bucket: extra-data-domain #lower case context key, dashes only
+      access-key: minioadmin
+      access-secret: minioadmin
+      force-path-style: true
+  admin-virtual-folder: /storage
   sidecar:
     pubish-interval-minutes: 10
 
@@ -74,5 +88,6 @@ springdoc:
 server:
   port: 8093
 
-#logging:
-#  level:
+logging:
+  level:
+    reactor.netty.http.client.HttpClient: INFO # change that to DEBUG to see request/response body, headers and status

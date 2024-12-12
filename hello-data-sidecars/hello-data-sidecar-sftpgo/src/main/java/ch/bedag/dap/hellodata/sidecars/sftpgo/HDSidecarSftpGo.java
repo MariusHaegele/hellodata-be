@@ -2,6 +2,7 @@ package ch.bedag.dap.hellodata.sidecars.sftpgo;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.EnableJetStream;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
+import ch.bedag.dap.hellodata.sidecars.sftpgo.config.S3ConnectionsConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.SpringApplication;
@@ -20,7 +21,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDiscoveryClient
 @ConfigurationPropertiesScan
 @ComponentScan("ch.bedag.dap.hellodata")
-@EnableConfigurationProperties({HelloDataContextConfig.class})
+@EnableConfigurationProperties({HelloDataContextConfig.class, S3ConnectionsConfig.class})
 public class HDSidecarSftpGo {
 
     public static void main(String[] args) {

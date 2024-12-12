@@ -1,41 +1,41 @@
 package ch.bedag.dap.hellodata.sidecars.sftpgo.config;
 
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.invoker.ApiClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
+@Log4j2
 @Configuration
 public class WebClientConfig {
 
     @Value("${hello-data.sftpgo.base-url}")
     private String baseUrl;
 
+    private static ExchangeFilterFunction logRequest() {
+        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+            log.info("Request: {} {}", clientRequest.method(), clientRequest.url());
+            clientRequest.headers().forEach((name, values) -> values.forEach(value -> log.info("{}={}", name, value)));
+            return Mono.just(clientRequest);
+        });
+    }
+
     @Bean
-    public ApiClient apiClient(ObjectMapper objectMapper) {
+    public ApiClient apiClient() {
         WebClient webClient = WebClient.builder()
                 .baseUrl(baseUrl)
-                .filter(logRequest())
+                .clientConnector(new ReactorClientHttpConnector(
+                        HttpClient.create().wiretap(true)
+                ))
                 .build();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         ApiClient apiClient = new ApiClient(webClient);
         apiClient.setBasePath(baseUrl + apiClient.getBasePath());
         return apiClient;
-    }
-
-    private ExchangeFilterFunction logRequest() {
-        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-            System.out.println("Request: " + clientRequest.method() + " " + clientRequest.url());
-            clientRequest.headers()
-                    .forEach((name, values) -> values.forEach(value -> System.out.println(name + ": " + value)));
-            return Mono.just(clientRequest);
-        });
     }
 }
