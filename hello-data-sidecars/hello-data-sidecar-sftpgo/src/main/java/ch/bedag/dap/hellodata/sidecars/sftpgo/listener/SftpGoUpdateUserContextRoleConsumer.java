@@ -41,15 +41,17 @@ public class SftpGoUpdateUserContextRoleConsumer {
     }
 
     private User fetchUser(UserContextRoleUpdate userContextRoleUpdate) {
+        User user = null;
         try {
-            return sftpgoService.getUser(userContextRoleUpdate.getUsername());
+            user = sftpgoService.getUser(userContextRoleUpdate.getUsername());
             log.info("User {} already created", user);
         } catch (WebClientResponseException.NotFound notFound) {
             log.debug("", notFound);
-            return sftpgoService.createUser(userContextRoleUpdate.getEmail(), userContextRoleUpdate.getUsername(), UUID.randomUUID().toString());
+            user = sftpgoService.createUser(userContextRoleUpdate.getEmail(), userContextRoleUpdate.getUsername(), UUID.randomUUID().toString());
         } catch (Exception e) {
             log.error("Could not create user {}", userContextRoleUpdate.getEmail(), e);
         }
+        return user;
     }
 
 }
