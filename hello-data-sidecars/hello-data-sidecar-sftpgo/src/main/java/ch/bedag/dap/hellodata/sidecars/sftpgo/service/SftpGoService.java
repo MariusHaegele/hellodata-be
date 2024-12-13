@@ -1,6 +1,5 @@
 package ch.bedag.dap.hellodata.sidecars.sftpgo.service;
 
-import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.api.FoldersApi;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.api.GroupsApi;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.api.TokenApi;
@@ -21,6 +20,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.Permission.STAR;
 import static org.springframework.web.reactive.function.client.WebClientResponseException.Conflict;
@@ -104,10 +104,9 @@ public class SftpGoService {
         return createdUser;
     }
 
-    public void createGroup(String dataDomainKey, String dataDomainName) {
+    public void createGroup(String dataDomainKey, String dataDomainName, String groupName, List<Permission> permissions) {
         refreshToken();
         GroupsApi groupsApi = new GroupsApi(apiClient);
-        String groupName = SlugifyUtil.slugify(dataDomainKey, "");
         try {
             Group existingGroup = groupsApi.getGroupByName(groupName, 0).block();
             log.info("Group {} already exists", existingGroup.getName());
@@ -117,10 +116,16 @@ public class SftpGoService {
             Group group = new Group();
             group.setName(groupName);
             group.setDescription(dataDomainName);
+
             VirtualFolder vf = createVirtualFolder(dataDomainKey, dataDomainName, groupName);
-            List<VirtualFolder> virtualFolders = new ArrayList<>();
-            virtualFolders.add(vf);
-            group.setVirtualFolders(virtualFolders);
+            group.setVirtualFolders(List.of(vf));
+
+            GroupUserSettings groupUserSettings = new GroupUserSettings();
+            Map<String, List<Permission>> permissionsMap = new HashMap<>();
+            permissionsMap.put(vf.getVirtualPath() + "/*", permissions);
+            groupUserSettings.setPermissions(permissionsMap);
+            group.setUserSettings(groupUserSettings);
+
             groupsApi.addGroup(group, 0).block();
             log.info("Group {} created", groupName);
         }
@@ -147,6 +152,12 @@ public class SftpGoService {
         FoldersApi foldersApi = new FoldersApi(apiClient);
         BaseVirtualFolder createdFolder = foldersApi.addFolder(baseVirtualFolder, 0).block();
 
+        Group group = getGroup(createdFolder);
+        groupsApi.addGroup(group, 0).block();
+        log.info("Admin group created");
+    }
+
+    private Group getGroup(BaseVirtualFolder createdFolder) {
         Group group = new Group();
         group.setName(ADMIN_GROUP_NAME);
         group.setDescription("Admin group");
@@ -158,8 +169,7 @@ public class SftpGoService {
         List<VirtualFolder> virtualFolders = new ArrayList<>();
         virtualFolders.add(virtualFolder);
         group.setVirtualFolders(virtualFolders);
-        groupsApi.addGroup(group, 0).block();
-        log.info("Admin group created");
+        return group;
     }
 
     private VirtualFolder createVirtualFolder(String dataDomainKey, String dataDomainName, String groupName) {

@@ -2,6 +2,7 @@ package ch.bedag.dap.hellodata.sidecars.sftpgo.listener;
 
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.GroupMapping;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
+import static ch.bedag.dap.hellodata.sidecars.sftpgo.listener.SftpGoPublishedAppInfoResourcesConsumer.*;
 import static ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService.ADMIN_GROUP_NAME;
 
 @Log4j2
@@ -27,6 +29,7 @@ public class SftpGoUpdateUserContextRoleConsumer {
 
     private final SftpGoService sftpGoService;
     private final SftpGoUserResourceProviderService sftpGoUserResourceProviderService;
+    private final HelloDataContextConfig helloDataContextConfig;
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
@@ -42,41 +45,43 @@ public class SftpGoUpdateUserContextRoleConsumer {
         }
     }
 
-    private void addGroup(GroupMapping.TypeEnum type, String adminGroupName, User user) {
+    private void addUserToGroup(GroupMapping.TypeEnum type, String adminGroupName, User user) {
         GroupMapping groupMapping = new GroupMapping();
         groupMapping.type(type);
         groupMapping.name(adminGroupName);
         user.addGroupsItem(groupMapping);
     }
 
-    private void removeGroup(User user, String adminGroupName) {
+    private void removeUserFromGroup(User user, String adminGroupName) {
         user.setGroups(new ArrayList<>(user.getGroups().stream().filter(groupMapping -> !groupMapping.getName().equalsIgnoreCase(adminGroupName)).toList()));
     }
 
     private void checkDataDomainRoles(UserContextRoleUpdate userContextRoleUpdate, User user) {
         userContextRoleUpdate.getContextRoles().stream()
-                .filter(contextRole -> contextRole.getParentContextKey() != null).forEach(userContextRole -> {
+                .filter(contextRole -> !contextRole.getContextKey().equalsIgnoreCase(helloDataContextConfig.getBusinessContext().getKey())).forEach(userContextRole -> {
                     String groupName = SlugifyUtil.slugify(userContextRole.getContextKey(), "");
+                    removeUserFromGroup(user, groupName + ADMIN_GROUP_POSTFIX);
+                    removeUserFromGroup(user, groupName + EDITOR_GROUP_POSTFIX);
+                    removeUserFromGroup(user, groupName + VIEWER_GROUP_POSTFIX);
                     switch (userContextRole.getRoleName()) {
-                        case NONE -> removeGroup(user, groupName);
-                        case DATA_DOMAIN_ADMIN, DATA_DOMAIN_EDITOR, DATA_DOMAIN_VIEWER -> { //TODO ACL based on permission level
-                            removeGroup(user, ADMIN_GROUP_NAME);
-                            addGroup(GroupMapping.TypeEnum.NUMBER_2, groupName, user);
-                        }
+                        case DATA_DOMAIN_ADMIN ->
+                                addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + ADMIN_GROUP_POSTFIX, user);
+                        case DATA_DOMAIN_EDITOR ->
+                                addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + EDITOR_GROUP_POSTFIX, user);
+                        case DATA_DOMAIN_VIEWER ->
+                                addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + VIEWER_GROUP_POSTFIX, user);
                     }
                 });
     }
 
     private void checkBusinessContextRole(UserContextRoleUpdate userContextRoleUpdate, User user) {
         Optional<UserContextRoleUpdate.ContextRole> businessDomainRole = userContextRoleUpdate.getContextRoles().stream()
-                .filter(contextRole -> contextRole.getParentContextKey() == null).findFirst();
+                .filter(contextRole -> contextRole.getContextKey().equalsIgnoreCase(helloDataContextConfig.getBusinessContext().getKey())).findFirst();
         businessDomainRole.ifPresent(businessDomainRoleContext -> {
             HdRoleName roleName = businessDomainRoleContext.getRoleName();
+            removeUserFromGroup(user, ADMIN_GROUP_NAME);
             if (roleName != HdRoleName.NONE) {
-                removeGroup(user, ADMIN_GROUP_NAME);
-                addGroup(GroupMapping.TypeEnum.NUMBER_1, ADMIN_GROUP_NAME, user);
-            } else {
-                removeGroup(user, ADMIN_GROUP_NAME);
+                addUserToGroup(GroupMapping.TypeEnum.NUMBER_1, ADMIN_GROUP_NAME, user);
             }
         });
     }
