@@ -122,7 +122,7 @@ public class SftpGoService {
 
             GroupUserSettings groupUserSettings = new GroupUserSettings();
             Map<String, List<Permission>> permissionsMap = new HashMap<>();
-            permissionsMap.put(vf.getVirtualPath() + "/*", permissions);
+            permissionsMap.put(vf.getVirtualPath() + "/", permissions);
             groupUserSettings.setPermissions(permissionsMap);
             group.setUserSettings(groupUserSettings);
 
@@ -185,6 +185,7 @@ public class SftpGoService {
         s3Config.setEndpoint(s3Connection.getEndpoint());
         s3Config.forcePathStyle(s3Connection.isForcePathStyle());
         s3Config.setBucket(s3Connection.getBucket());
+        s3Config.setRegion(s3Connection.getRegion());
         FilesystemConfig filesystemConfig = new FilesystemConfig();
         filesystemConfig.s3config(s3Config);
         filesystemConfig.setProvider(FsProviders.NUMBER_1);

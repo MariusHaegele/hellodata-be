@@ -25,6 +25,7 @@ public class S3ConnectionsConfig {
         private String contextKey;
         private String endpoint;
         private String bucket;
+        private String region;
         private String accessKey;
         private String accessSecret;
         private boolean forcePathStyle;

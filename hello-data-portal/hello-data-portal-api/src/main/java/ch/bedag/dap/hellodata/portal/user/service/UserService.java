@@ -495,7 +495,7 @@ public class UserService {
         SubsystemUserUpdate createUser = new SubsystemUserUpdate();
         createUser.setFirstName(representation.getFirstName());
         createUser.setLastName(representation.getLastName());
-        createUser.setUsername(representation.getUsername());
+        createUser.setUsername(representation.getUsername().toLowerCase(Locale.ROOT));
         createUser.setEmail(representation.getEmail().toLowerCase(Locale.ROOT));
         createUser.setActive(representation.isEnabled());
         return createUser;
@@ -522,11 +522,7 @@ public class UserService {
             }
             setRoleForAllRemainingDataDomainsToNone(updateContextRolesForUserDto, userEntity);
         }
-        if (updateContextRolesForUserDto.getBusinessDomainRole().getName().equalsIgnoreCase(HdRoleName.HELLODATA_ADMIN.name())) {
-            userEntity.setSuperuser(true);
-        } else {
-            userEntity.setSuperuser(false);
-        }
+        userEntity.setSuperuser(updateContextRolesForUserDto.getBusinessDomainRole().getName().equalsIgnoreCase(HdRoleName.HELLODATA_ADMIN.name()));
         userRepository.save(userEntity);
     }
 

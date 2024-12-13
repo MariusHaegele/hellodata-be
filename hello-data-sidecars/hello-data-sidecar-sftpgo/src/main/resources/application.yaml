@@ -40,12 +40,14 @@ hello-data:
     - context-key: Default_Data_Domain
       endpoint: http://minio:9000
       bucket: default-data-domain #lower case context key, dashes only
+      region: eu-central-2
       access-key: minioadmin
       access-secret: minioadmin
       force-path-style: true
     - context-key: Extra_Data_Domain
       endpoint: http://minio:9000
       bucket: extra-data-domain #lower case context key, dashes only
+      region: eu-central-2
       access-key: minioadmin
       access-secret: minioadmin
       force-path-style: true
