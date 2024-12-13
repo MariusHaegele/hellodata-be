@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,18 +42,26 @@ public class SftpGoUpdateUserContextRoleConsumer {
         }
     }
 
+    private void addGroup(GroupMapping.TypeEnum type, String adminGroupName, User user) {
+        GroupMapping groupMapping = new GroupMapping();
+        groupMapping.type(type);
+        groupMapping.name(adminGroupName);
+        user.addGroupsItem(groupMapping);
+    }
+
+    private void removeGroup(User user, String adminGroupName) {
+        user.setGroups(new ArrayList<>(user.getGroups().stream().filter(groupMapping -> !groupMapping.getName().equalsIgnoreCase(adminGroupName)).toList()));
+    }
+
     private void checkDataDomainRoles(UserContextRoleUpdate userContextRoleUpdate, User user) {
         userContextRoleUpdate.getContextRoles().stream()
                 .filter(contextRole -> contextRole.getParentContextKey() != null).forEach(userContextRole -> {
                     String groupName = SlugifyUtil.slugify(userContextRole.getContextKey(), "");
                     switch (userContextRole.getRoleName()) {
-                        case NONE ->
-                                user.setGroups(user.getGroups().stream().filter(groupMapping -> groupMapping.getName().equalsIgnoreCase(groupName)).toList());
+                        case NONE -> removeGroup(user, groupName);
                         case DATA_DOMAIN_ADMIN, DATA_DOMAIN_EDITOR, DATA_DOMAIN_VIEWER -> { //TODO ACL based on permission level
-                            GroupMapping groupMapping = new GroupMapping();
-                            groupMapping.type(GroupMapping.TypeEnum.NUMBER_2);
-                            groupMapping.name(groupName);
-                            user.addGroupsItem(groupMapping);
+                            removeGroup(user, ADMIN_GROUP_NAME);
+                            addGroup(GroupMapping.TypeEnum.NUMBER_2, groupName, user);
                         }
                     }
                 });
@@ -64,12 +73,10 @@ public class SftpGoUpdateUserContextRoleConsumer {
         businessDomainRole.ifPresent(businessDomainRoleContext -> {
             HdRoleName roleName = businessDomainRoleContext.getRoleName();
             if (roleName != HdRoleName.NONE) {
-                GroupMapping groupMapping = new GroupMapping();
-                groupMapping.type(GroupMapping.TypeEnum.NUMBER_1);
-                groupMapping.name(ADMIN_GROUP_NAME);
-                user.addGroupsItem(groupMapping);
+                removeGroup(user, ADMIN_GROUP_NAME);
+                addGroup(GroupMapping.TypeEnum.NUMBER_1, ADMIN_GROUP_NAME, user);
             } else {
-                user.setGroups(user.getGroups().stream().filter(groupMapping -> groupMapping.getName().equalsIgnoreCase(ADMIN_GROUP_NAME)).toList());
+                removeGroup(user, ADMIN_GROUP_NAME);
             }
         });
     }

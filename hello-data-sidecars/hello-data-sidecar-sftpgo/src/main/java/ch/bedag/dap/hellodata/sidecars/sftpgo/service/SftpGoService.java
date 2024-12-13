@@ -18,8 +18,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import static ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.Permission.STAR;
 import static org.springframework.web.reactive.function.client.WebClientResponseException.Conflict;
 import static org.springframework.web.reactive.function.client.WebClientResponseException.NotFound;
 
@@ -41,17 +44,8 @@ public class SftpGoService {
     private OffsetDateTime lastRefreshTime;
 
     @PostConstruct
-    public void initAdminGroup() {
-        refreshToken();
-        GroupsApi groupsApi = new GroupsApi(apiClient);
-        try {
-            Group existingGroup = groupsApi.getGroupByName(ADMIN_GROUP_NAME, 0).block();
-            log.info("Admin group '{}' already exists", existingGroup);
-        } catch (NotFound notFound) {
-            log.debug("", notFound);
-            log.info("Admin group not found, creating...");
-            createAdminGroup(groupsApi);
-        }
+    public void init() {
+        initAdminGroup();
     }
 
     public List<User> getAllUsers() {
@@ -99,6 +93,11 @@ public class SftpGoService {
         user.setPassword(password);
         user.setEmail(email);
         user.setStatus(User.StatusEnum.NUMBER_1);
+
+        HashMap<String, List<Permission>> permissions = new HashMap<>();
+        permissions.put("/", List.of(STAR));
+        user.permissions(permissions);
+
         User createdUser = usersApi.addUser(user, 0).block();
         usersApi.disableUser2fa(username).block();
         log.info("User {} created", username);
@@ -111,7 +110,7 @@ public class SftpGoService {
         String groupName = SlugifyUtil.slugify(dataDomainKey, "");
         try {
             Group existingGroup = groupsApi.getGroupByName(groupName, 0).block();
-            log.info("Group {} already exists", existingGroup);
+            log.info("Group {} already exists", existingGroup.getName());
         } catch (NotFound notFound) {
             log.debug("", notFound);
             log.info("Group {} not found, creating...", groupName);
@@ -119,9 +118,24 @@ public class SftpGoService {
             group.setName(groupName);
             group.setDescription(dataDomainName);
             VirtualFolder vf = createVirtualFolder(dataDomainKey, dataDomainName, groupName);
-            group.setVirtualFolders(List.of(vf));
+            List<VirtualFolder> virtualFolders = new ArrayList<>();
+            virtualFolders.add(vf);
+            group.setVirtualFolders(virtualFolders);
             groupsApi.addGroup(group, 0).block();
             log.info("Group {} created", groupName);
+        }
+    }
+
+    private void initAdminGroup() {
+        refreshToken();
+        GroupsApi groupsApi = new GroupsApi(apiClient);
+        try {
+            Group existingGroup = groupsApi.getGroupByName(ADMIN_GROUP_NAME, 0).block();
+            log.info("Admin group '{}' already exists", existingGroup);
+        } catch (NotFound notFound) {
+            log.debug("", notFound);
+            log.info("Admin group not found, creating...");
+            createAdminGroup(groupsApi);
         }
     }
 
@@ -141,7 +155,9 @@ public class SftpGoService {
         virtualFolder.setMappedPath(createdFolder.getMappedPath());
         virtualFolder.setVirtualPath(adminVirtualFolder);
         virtualFolder.setId(createdFolder.getId());
-        group.setVirtualFolders(List.of(virtualFolder));
+        List<VirtualFolder> virtualFolders = new ArrayList<>();
+        virtualFolders.add(virtualFolder);
+        group.setVirtualFolders(virtualFolders);
         groupsApi.addGroup(group, 0).block();
         log.info("Admin group created");
     }
