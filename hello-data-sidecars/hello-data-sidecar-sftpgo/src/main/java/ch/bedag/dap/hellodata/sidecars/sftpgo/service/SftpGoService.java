@@ -31,7 +31,7 @@ import static org.springframework.web.reactive.function.client.WebClientResponse
 @RequiredArgsConstructor
 public class SftpGoService {
     public static final String ADMIN_GROUP_NAME = "Admin";
-    private final ApiClient apiClient;
+    private final ApiClient sftpGoApiClient;
     private final S3ConnectionsConfig s3ConnectionsConfig;
 
     @Value("${hello-data.sftpgo.admin-username}")
@@ -50,13 +50,13 @@ public class SftpGoService {
 
     public List<User> getAllUsers() {
         refreshToken();
-        UsersApi usersApi = new UsersApi(apiClient);
+        UsersApi usersApi = new UsersApi(sftpGoApiClient);
         return usersApi.getUsers(0, Integer.MAX_VALUE, "ASC").collectList().block();
     }
 
     public User getUser(String username) {
         refreshToken();
-        UsersApi usersApi = new UsersApi(apiClient);
+        UsersApi usersApi = new UsersApi(sftpGoApiClient);
         return usersApi.getUserByUsername(username, 0).block();
     }
 
@@ -64,14 +64,14 @@ public class SftpGoService {
         refreshToken();
         User user = getUser(username);
         user.setStatus(User.StatusEnum.NUMBER_0);
-        UsersApi usersApi = new UsersApi(apiClient);
+        UsersApi usersApi = new UsersApi(sftpGoApiClient);
         usersApi.updateUser(username, user, 1).block();
         log.info("User {} disabled", username);
     }
 
     public void updateUser(User user) {
         refreshToken();
-        UsersApi usersApi = new UsersApi(apiClient);
+        UsersApi usersApi = new UsersApi(sftpGoApiClient);
         usersApi.updateUser(user.getUsername(), user, 1).block();
         log.info("User {} updated", user.getUsername());
     }
@@ -80,14 +80,14 @@ public class SftpGoService {
         refreshToken();
         User user = getUser(username);
         user.setStatus(User.StatusEnum.NUMBER_1);
-        UsersApi usersApi = new UsersApi(apiClient);
+        UsersApi usersApi = new UsersApi(sftpGoApiClient);
         usersApi.updateUser(username, user, 1).block();
         log.info("User {} enabled", username);
     }
 
     public User createUser(String email, String username, String password) {
         refreshToken();
-        UsersApi usersApi = new UsersApi(apiClient);
+        UsersApi usersApi = new UsersApi(sftpGoApiClient);
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
@@ -106,7 +106,7 @@ public class SftpGoService {
 
     public void createGroup(String dataDomainKey, String dataDomainName, String groupName, List<Permission> permissions) {
         refreshToken();
-        GroupsApi groupsApi = new GroupsApi(apiClient);
+        GroupsApi groupsApi = new GroupsApi(sftpGoApiClient);
         try {
             Group existingGroup = groupsApi.getGroupByName(groupName, 0).block();
             log.info("Group {} already exists", existingGroup.getName());
@@ -133,7 +133,7 @@ public class SftpGoService {
 
     private void initAdminGroup() {
         refreshToken();
-        GroupsApi groupsApi = new GroupsApi(apiClient);
+        GroupsApi groupsApi = new GroupsApi(sftpGoApiClient);
         try {
             Group existingGroup = groupsApi.getGroupByName(ADMIN_GROUP_NAME, 0).block();
             log.info("Admin group '{}' already exists", existingGroup);
@@ -149,7 +149,7 @@ public class SftpGoService {
         BaseVirtualFolder baseVirtualFolder = new BaseVirtualFolder();
         baseVirtualFolder.setName(ADMIN_GROUP_NAME);
         baseVirtualFolder.setMappedPath(adminVirtualFolder);
-        FoldersApi foldersApi = new FoldersApi(apiClient);
+        FoldersApi foldersApi = new FoldersApi(sftpGoApiClient);
         BaseVirtualFolder createdFolder = foldersApi.addFolder(baseVirtualFolder, 0).block();
 
         Group group = getGroup(createdFolder);
@@ -195,7 +195,7 @@ public class SftpGoService {
         baseVirtualFolder.setDescription(dataDomainName);
         baseVirtualFolder.setMappedPath("/" + groupName);
         baseVirtualFolder.setFilesystem(filesystemConfig);
-        FoldersApi foldersApi = new FoldersApi(apiClient);
+        FoldersApi foldersApi = new FoldersApi(sftpGoApiClient);
         log.info("Creating folder {}", baseVirtualFolder);
 
         BaseVirtualFolder createdFolder;
@@ -227,14 +227,14 @@ public class SftpGoService {
             }
         }
 
-        HttpBasicAuth basicAuth = (HttpBasicAuth) apiClient.getAuthentication("BasicAuth");
+        HttpBasicAuth basicAuth = (HttpBasicAuth) sftpGoApiClient.getAuthentication("BasicAuth");
         basicAuth.setUsername(sftpGoAdminUsername);
         basicAuth.setPassword(sftpGoAdminPassword);
 
-        TokenApi tokenApi = new TokenApi(apiClient);
+        TokenApi tokenApi = new TokenApi(sftpGoApiClient);
         Token token = tokenApi.getToken(null).block();
 
-        HttpBearerAuth BearerAuth = (HttpBearerAuth) apiClient.getAuthentication("BearerAuth");
+        HttpBearerAuth BearerAuth = (HttpBearerAuth) sftpGoApiClient.getAuthentication("BearerAuth");
         BearerAuth.setBearerToken(token.getAccessToken());
 
         lastRefreshTime = OffsetDateTime.now();

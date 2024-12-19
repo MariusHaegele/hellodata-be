@@ -27,7 +27,7 @@ public class WebClientConfig {
     }
 
     @Bean
-    public ApiClient apiClient() {
+    public ApiClient sftpGoApiClient() {
         WebClient webClient = WebClient.builder()
                 .baseUrl(baseUrl)
                 .clientConnector(new ReactorClientHttpConnector(
